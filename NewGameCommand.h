@@ -10,11 +10,11 @@
 
 class NewGameCommand : public Command{
 private:
-    GameManager* manager;
     string name;
 public:
-    NewGameCommand(GameManager* manager, string name);
-    void execute();
+    NewGameCommand(GameManager* manager, void(GameManager:: *method)());
+    void Execute(int port, string IP);
+    void SetArgs (string args []);
 
 };
 

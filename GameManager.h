@@ -9,6 +9,8 @@
 using namespace std;
 
 class GameManager {
+private:
+    //Game list
 public:
     virtual void StartNewGame (string name) = 0;
     virtual void ListGames () = 0;
