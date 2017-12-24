@@ -27,6 +27,7 @@ private:
     int connectPlayer (player player);
     gameStatus handleDirection(int from, int to);
     void* ClientHandler (void* args);
+    void* AcceptClientHandler (void* args);
 };
 
 

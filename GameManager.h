@@ -11,10 +11,10 @@
 using namespace std;
 
 class GameManager {
-private:
+protected:
     //Game list
     map <string, ActiveGame> nameToGameObject;
-    map <int , string> addressToGameName;
+    map <int , string> socketToGameName;
     int currentClientSocket;
 public:
     virtual void StartNewGame (string name) = 0;

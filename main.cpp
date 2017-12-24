@@ -10,7 +10,7 @@ using namespace std;
 
 int main() {
 
-    Server server;
+    Server server(new CommandsManager());
     try {
         server.start();
     }

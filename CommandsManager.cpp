@@ -6,6 +6,9 @@
 #include "NewGameCommand.h"
 #include "ReversiGameManager.h"
 #include "ListGameCommand.h"
+#include "JoinGameCommand.h"
+#include "MakeStepCommand.h"
+#include "CloseGameCommand.h"
 
 
 CommandsManager::CommandsManager() {
@@ -14,7 +17,9 @@ CommandsManager::CommandsManager() {
 
     commandsMap["start"] = new NewGameCommand(manager);
     commandsMap["list_games"] = new ListGameCommand(manager);
-// Add more commands...
+    commandsMap["join"] = new JoinGameCommand(manager);
+    commandsMap["play"] = new MakeStepCommand(manager);
+    commandsMap["close"] = new CloseGameCommand(manager);
 }
 void CommandsManager::ExecuteCommand(string command, vector<string> args) {
     Command *commandObj = commandsMap[command];

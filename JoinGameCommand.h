@@ -6,8 +6,12 @@
 #define EX5SERVER_JOINGAMECOMMAND_H
 
 
-class JoinGameCommand {
+#include "Command.h"
 
+class JoinGameCommand : public Command{
+public:
+    JoinGameCommand (GameManager* manager);
+    virtual void Execute (vector <string> args);
 };
 
 

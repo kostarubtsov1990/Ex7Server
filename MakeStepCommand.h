@@ -6,8 +6,12 @@
 #define EX5SERVER_MAKESTEPCOMMAND_H
 
 
-class MakeStepCommand {
+#include "Command.h"
 
+class MakeStepCommand : public Command{
+public:
+    MakeStepCommand (GameManager* manager);
+    virtual void Execute (vector <string> args);
 };
 
 

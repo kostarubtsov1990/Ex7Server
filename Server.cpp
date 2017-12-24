@@ -16,7 +16,7 @@ using namespace std;
 #define MAX_CONNECTED_CLIENTS 10
 #define BUF_SIZE 1024
 
-Server::Server(ModifiedCommandMap* commMap) {
+Server::Server(CommandsManager* commMap) {
     //Read the settings from file.
     const char* fileName = "settings.txt";
     string ip;
@@ -56,45 +56,26 @@ void Server::start() {
     listen(serverSocket,MAX_CONNECTED_CLIENTS);
 
 
+    pthread_t thread;
+    int result = pthread_create(&thread, NULL, ClientHandler, NULL);
 
-    while (true) {
-        cout << "Waiting for client connection...." << endl;
-
-        //Define the client socket's structures
-        struct sockaddr_in clientAddress;
-        socklen_t clientAddressLen = sizeof(clientAddress);
-
-        int playerClientSocket = accept(serverSocket,(struct sockaddr*)&clientAddress, &clientAddressLen);
-
-        pthread_t thread;
-        int result = pthread_create(&thread, NULL, ClientHandler, (void*)&playerClientSocket);
-
-        if (result) {
-            cout << "Error: unable to create thread, " << result << endl;
-            exit(-1);
-        }
-
-        /*string message;
-
-        int firstPlayerClientSocket = connectPlayer(firstPlayer);
-        int secondPlayerClientSocket = connectPlayer(secondPlayer);
-
-        message = "START";
-
-        //send start meesage to the first player
-        int n = write(firstPlayerClientSocket, message.c_str(), strlen(message.c_str()) + 1);
-
-        if (n == -1) {
-            cout << "Error writing to socket" << endl;
-            return;
-        }
-
-        handleGame(firstPlayerClientSocket, secondPlayerClientSocket);
-
-        //Close communication with the client
-        close(firstPlayerClientSocket);
-        close(secondPlayerClientSocket);*/
+    if (result) {
+        cout << "Error: unable to create thread, " << result << endl;
+        exit(-1);
     }
+
+    string exitCommand;
+
+    //Wait for exit command from the server side user.
+    cin >> exitCommand;
+
+    while (exitCommand != "exit") {
+        cin >> exitCommand;
+    }
+
+    //TO DO: stop the accept thread and also inform clients about server termination
+    //TO DO: close all the client threads
+
 }
 
 void Server::handleGame(int firstPlayerClientSocket, int secondPlayerClientSocket) {
@@ -179,11 +160,33 @@ int Server::connectPlayer(player player) {
 }
 
 void* Server::ClientHandler(void *args) {
-    char clientQueryBuffer [BUF_SIZE];
-    int* playerClientSocket = (int*)args;
-    int n = read(*playerClientSocket, clientQueryBuffer, sizeof(clientQueryBuffer));
-    Command* toMake = commandMap->GetCommand(clientQueryBuffer);
-    toMake->Execute(*playerClientSocket);
+    while (true) {
+        char clientQueryBuffer[BUF_SIZE];
+        int *playerClientSocket = (int *) args;
+        int n = read(*playerClientSocket, clientQueryBuffer, sizeof(clientQueryBuffer));
+        commandMap->CommandHandler(*playerClientSocket, clientQueryBuffer);
+    }
 }
+
+void* Server::AcceptClientHandler(void *args) {
+    while (true) {
+        cout << "Waiting for client connection...." << endl;
+
+        //Define the client socket's structures
+        struct sockaddr_in clientAddress;
+        socklen_t clientAddressLen = sizeof(clientAddress);
+
+        int playerClientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
+
+        pthread_t thread;
+        int result = pthread_create(&thread, NULL, ClientHandler, (void *) &playerClientSocket);
+
+        if (result) {
+            cout << "Error: unable to create thread, " << result << endl;
+            exit(-1);
+        }
+    }
+}
+
 
 void Server::stop() {}

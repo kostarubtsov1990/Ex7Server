@@ -13,13 +13,15 @@
 using namespace std;
 
 class ReversiGameManager : public GameManager{
+private:
+    bool IsGameExist(string gameName);
 public:
-    void StartNewGame (string name);
-    void ListGames ();
-    void JoinGame (string name);
-    void PlayMove (int x, int y);
-    void CloseGame (string name);
-    void SetCurrentClientSocket (int currentClientSocket);
+    virtual void StartNewGame (string name);
+    virtual void ListGames ();
+    virtual void JoinGame (string name);
+    virtual void PlayMove (int x, int y);
+    virtual void CloseGame (string name);
+    virtual void SetCurrentClientSocket (int currentClientSocket);
 
 };
 

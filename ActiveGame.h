@@ -13,7 +13,9 @@ class ActiveGame {
 private:
     vector <int> currentPlayers;
 public:
-    int returnNthPlayer(int n);
+    int ReturnNthPlayer(int n);
+    void AddPlayer (int playerSocket);
+    int GetNumOfPlayers ();
 
 };
 

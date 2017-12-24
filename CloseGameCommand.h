@@ -6,8 +6,12 @@
 #define EX5SERVER_CLOSEGAMECOMMAND_H
 
 
-class CloseGameCommand {
+#include "Command.h"
 
+class CloseGameCommand : public Command{
+public:
+    CloseGameCommand (GameManager* manager);
+    virtual void Execute (vector <string> args);
 };
 
 
