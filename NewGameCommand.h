@@ -9,12 +9,9 @@
 #include "Command.h"
 
 class NewGameCommand : public Command{
-private:
-    string name;
 public:
-    NewGameCommand(GameManager* manager, void(GameManager:: *method)());
-    void Execute(int port, string IP);
-    void SetArgs (string args []);
+    NewGameCommand(GameManager* manager);
+    void Execute(vector <string> args);
 
 };
 

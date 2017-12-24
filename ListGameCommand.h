@@ -6,8 +6,12 @@
 #define EX5SERVER_LISTGAMECOMMAND_H
 
 
-class ListGameCommand {
+#include "Command.h"
 
+class ListGameCommand : public Command{
+public:
+    ListGameCommand (GameManager* manager);
+    void Execute(vector <string> args);
 };
 
 

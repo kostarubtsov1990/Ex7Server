@@ -5,13 +5,15 @@
 #ifndef EX4SERVER_SERVER_H
 #define EX4SERVER_SERVER_H
 
+#include "CommandsManager.h"
+
 enum player {firstPlayer, secondPlayer};
 enum gameStatus {inProgress, finished};
 
 class Server {
 public:
 
-    Server();
+    Server(CommandsManager* commandMap);
     Server(int port);
     void start();
     void stop();
@@ -19,10 +21,12 @@ public:
 private:
     int port;
     int serverSocket; // the socket's file descriptor
+    CommandsManager* commandMap;
 
     void handleGame(int firstPlayerClientSocket, int secondPlayerClientSocket);
     int connectPlayer (player player);
     gameStatus handleDirection(int from, int to);
+    void* ClientHandler (void* args);
 };
 
 

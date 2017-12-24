@@ -7,19 +7,19 @@
 
 #include "GameManager.h"
 #include "ActiveGame.h"
-#include "PlayerAddress.h"
 #include <map>
 #include <string>
 
 using namespace std;
 
 class ReversiGameManager : public GameManager{
-private:
-    map <string, ActiveGame> nameToGameObject;
-    map <PlayerAddress, string> addressToGameName;
-
 public:
-
+    void StartNewGame (string name);
+    void ListGames ();
+    void JoinGame (string name);
+    void PlayMove (int x, int y);
+    void CloseGame (string name);
+    void SetCurrentClientSocket (int currentClientSocket);
 
 };
 

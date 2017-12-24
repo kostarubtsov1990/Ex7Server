@@ -16,7 +16,7 @@ using namespace std;
 #define MAX_CONNECTED_CLIENTS 10
 #define BUF_SIZE 1024
 
-Server::Server() {
+Server::Server(ModifiedCommandMap* commMap) {
     //Read the settings from file.
     const char* fileName = "settings.txt";
     string ip;
@@ -26,6 +26,9 @@ Server::Server() {
     getline(myfile, portString);
 
     port = atoi(portString.c_str());
+
+    commandMap = commMap;
+
 }
 
 Server::Server(int port): port(port), serverSocket(0) {
@@ -55,9 +58,23 @@ void Server::start() {
 
 
     while (true) {
-        cout << "Waiting for client connections...." << endl;
+        cout << "Waiting for client connection...." << endl;
 
-        string message;
+        //Define the client socket's structures
+        struct sockaddr_in clientAddress;
+        socklen_t clientAddressLen = sizeof(clientAddress);
+
+        int playerClientSocket = accept(serverSocket,(struct sockaddr*)&clientAddress, &clientAddressLen);
+
+        pthread_t thread;
+        int result = pthread_create(&thread, NULL, ClientHandler, (void*)&playerClientSocket);
+
+        if (result) {
+            cout << "Error: unable to create thread, " << result << endl;
+            exit(-1);
+        }
+
+        /*string message;
 
         int firstPlayerClientSocket = connectPlayer(firstPlayer);
         int secondPlayerClientSocket = connectPlayer(secondPlayer);
@@ -76,7 +93,7 @@ void Server::start() {
 
         //Close communication with the client
         close(firstPlayerClientSocket);
-        close(secondPlayerClientSocket);
+        close(secondPlayerClientSocket);*/
     }
 }
 
@@ -159,6 +176,14 @@ int Server::connectPlayer(player player) {
         return -1;
     }
     return playerClientSocket;
+}
+
+void* Server::ClientHandler(void *args) {
+    char clientQueryBuffer [BUF_SIZE];
+    int* playerClientSocket = (int*)args;
+    int n = read(*playerClientSocket, clientQueryBuffer, sizeof(clientQueryBuffer));
+    Command* toMake = commandMap->GetCommand(clientQueryBuffer);
+    toMake->Execute(*playerClientSocket);
 }
 
 void Server::stop() {}

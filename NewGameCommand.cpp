@@ -2,17 +2,15 @@
 // Created by kostarubtsov1990 on 22/12/17.
 //
 
+#include <cstdlib>
 #include "NewGameCommand.h"
-#include "PlayerAddress.h"
 
-NewGameCommand::NewGameCommand(GameManager *manager, void(GameManager:: *method)())
-        : manager(manager), method(method){}
 
-void NewGameCommand::Execute(int port, string IP) {
-    PlayerAddress address (port, IP);
-    (manager-> *method)(address, name);
-}
+NewGameCommand::NewGameCommand(GameManager *manager) : manager(manager){}
 
-void NewGameCommand::SetArgs(string args []) {
-    name = args[0];
+void NewGameCommand::Execute(vector <string> args) {
+    //args[0] will be the client's socket integer.
+    manager->SetCurrentClientSocket(atoi(args[0].c_str()));
+    //args[1] will be the name string of the game.
+    manager->StartNewGame(args[1]);
 }

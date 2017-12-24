@@ -3,3 +3,5 @@
 //
 
 #include "ModifiedCommandMap.h"
+
+ModifiedCommandMap::ModifiedCommandMap(map<string, Command *> commandMap) : commandNameToCommand(commandMap){}

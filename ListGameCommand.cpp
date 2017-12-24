@@ -3,3 +3,5 @@
 //
 
 #include "ListGameCommand.h"
+
+ListGameCommand::ListGameCommand(GameManager *maneger) : manager{}

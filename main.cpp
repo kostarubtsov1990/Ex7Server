@@ -1,9 +1,15 @@
-#include "Server.h"
+
 #include <iostream>
 #include <stdlib.h>
+
+#include "Server.h"
+#include "NewGameCommand.h"
+#include "ReversiGameManager.h"
+
 using namespace std;
 
 int main() {
+
     Server server;
     try {
         server.start();

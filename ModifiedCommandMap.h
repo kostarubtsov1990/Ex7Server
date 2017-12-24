@@ -16,6 +16,7 @@ private:
     string ExtractCommandName(string dataFromClient);
     void SetArgsToCommand(string argsString);
 public:
+    ModifiedCommandMap (map <string,Command*> commandMap);
     Command* GetCommand (string dataFromClient);
 };
 

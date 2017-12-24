@@ -15,8 +15,7 @@ protected:
     GameManager* manager;
     void(GameManager:: *method)();
 public:
-    virtual void Execute (int port, string IP) = 0;
-    virtual void SetArgs (string args []) = 0;
+    virtual void Execute (vector <string> args) = 0;
 };
 
 
