@@ -9,12 +9,19 @@
 #include "ActiveGame.h"
 #include <map>
 #include <string>
+#include <iostream>
+#define BUF_SIZE 1024
+enum player {firstPlayer, secondPlayer};
+enum gameStatus {inProgress, finished};
 
 using namespace std;
 
 class ReversiGameManager : public GameManager{
 private:
-    bool IsGameExist(string gameName);
+    template <class T, class U>
+    bool IsKeyExist(T Key, map <T, U> mapToSearch);
+    void* GameHandler (void* args);
+    gameStatus handleDirection(int from, int to);
 public:
     virtual void StartNewGame (string name);
     virtual void ListGames ();

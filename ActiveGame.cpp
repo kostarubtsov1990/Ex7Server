@@ -15,3 +15,13 @@ void ActiveGame::AddPlayer(int playerSocket) {
 int ActiveGame::GetNumOfPlayers() {
     return this->currentPlayers.size();
 }
+
+int ActiveGame::ReturnOpponentPlayerSocket(int currentPlayerSocket) {
+    //Case where only two players are playing
+    if (currentPlayers[0] == currentPlayerSocket) {
+        return currentPlayers[1];
+    }
+    else {
+        return currentPlayers[0];
+    }
+}

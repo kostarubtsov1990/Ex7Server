@@ -16,6 +16,7 @@ public:
     int ReturnNthPlayer(int n);
     void AddPlayer (int playerSocket);
     int GetNumOfPlayers ();
+    int ReturnOpponentPlayerSocket (int currentPlayerSocket);
 
 };
 
