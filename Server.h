@@ -23,9 +23,7 @@ private:
     int serverSocket; // the socket's file descriptor
     CommandsManager* commandMap;
 
-    void handleGame(int firstPlayerClientSocket, int secondPlayerClientSocket);
     int connectPlayer (player player);
-    gameStatus handleDirection(int from, int to);
     void* ClientHandler (void* args);
     void* AcceptClientHandler (void* args);
 };

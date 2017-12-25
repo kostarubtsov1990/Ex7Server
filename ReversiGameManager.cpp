@@ -60,7 +60,7 @@ void ReversiGameManager::JoinGame(string name) {
     int n = write(currentClientSocket, message.c_str(), strlen(message) + 1);
 
     pthread_t thread;
-    int result = pthread_create(&thread, NULL, ClientHandler, (void *) &playerClientSocket);
+    int result = pthread_create(&thread, NULL, GameHandler, (void *) &currentClientSocket);
 
 
 
@@ -77,6 +77,8 @@ void ReversiGameManager::ListGames() {
     }
 
     int n = write(currentClientSocket, message.c_str(), strlen(message) + 1);
+    //Close client connection
+    close(currentClientSocket);
 }
 
 void ReversiGameManager::PlayMove(int x, int y) {

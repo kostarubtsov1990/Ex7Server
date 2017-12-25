@@ -13,7 +13,6 @@ using namespace std;
 class Command {
 protected:
     GameManager* manager;
-    void(GameManager:: *method)();
 public:
     virtual void Execute (vector <string> args) = 0;
 };

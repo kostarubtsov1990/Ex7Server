@@ -57,7 +57,7 @@ void Server::start() {
 
 
     pthread_t thread;
-    int result = pthread_create(&thread, NULL, ClientHandler, NULL);
+    int result = pthread_create(&thread, NULL, AcceptClientHandler, NULL);
 
     if (result) {
         cout << "Error: unable to create thread, " << result << endl;
@@ -76,53 +76,6 @@ void Server::start() {
     //TO DO: stop the accept thread and also inform clients about server termination
     //TO DO: close all the client threads
 
-}
-
-void Server::handleGame(int firstPlayerClientSocket, int secondPlayerClientSocket) {
-
-    gameStatus status;
-    //if status equals "finished", game is over and server keeps listening to connections from clients.
-    while (status != finished) {
-        //first player sends its move, second player updates its own board with the first player's move, and moves too.
-        status = handleDirection(firstPlayerClientSocket, secondPlayerClientSocket);
-
-        if (status == finished)
-            break;
-        //sec passes its choose to the first player that updates its board according to the second's move, and
-        //the first makes its own move.
-        status = handleDirection(secondPlayerClientSocket, firstPlayerClientSocket);
-    }
-}
-
-gameStatus Server::handleDirection(int from, int to) {
-
-    char clientQueryBuffer [BUF_SIZE];
-    //read (x,y) move performed by client1
-    int n = read(from, clientQueryBuffer, sizeof(clientQueryBuffer));
-    //handle errors
-    if (n == -1) {
-        cout << "Error reading arg1" << endl;
-        return finished;
-    }
-    if (n == 0) {
-        cout << "Client disconnected" << endl;
-        return finished;
-    }
-    //send (x,y) move performed by client1 to client2
-    n = write(to, clientQueryBuffer, sizeof(clientQueryBuffer));
-    //handle errors
-    if (n == -1) {
-        cout << "Error reading arg1" << endl;
-        return finished;
-    }
-    if (n == 0) {
-        cout << "Client disconnected" << endl;
-        return finished;
-    }
-    //game is finished
-    if (strcmp(clientQueryBuffer, "END") == 0) {
-        return finished;
-    }
 }
 
 int Server::connectPlayer(player player) {
@@ -164,6 +117,11 @@ void* Server::ClientHandler(void *args) {
         char clientQueryBuffer[BUF_SIZE];
         int *playerClientSocket = (int *) args;
         int n = read(*playerClientSocket, clientQueryBuffer, sizeof(clientQueryBuffer));
+        //If client send list_game command, after the client receive the game list
+        //the server closes the connection with the client.
+        if (n == 0) {
+            break;
+        }
         commandMap->CommandHandler(*playerClientSocket, clientQueryBuffer);
     }
 }

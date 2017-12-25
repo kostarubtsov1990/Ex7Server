@@ -9,6 +9,7 @@
 #include "JoinGameCommand.h"
 #include "MakeStepCommand.h"
 #include "CloseGameCommand.h"
+#include <sstream>
 
 
 CommandsManager::CommandsManager() {
@@ -18,12 +19,41 @@ CommandsManager::CommandsManager() {
     commandsMap["start"] = new NewGameCommand(manager);
     commandsMap["list_games"] = new ListGameCommand(manager);
     commandsMap["join"] = new JoinGameCommand(manager);
-    commandsMap["play"] = new MakeStepCommand(manager);
-    commandsMap["close"] = new CloseGameCommand(manager);
+    //Currently not in use
+    /*commandsMap["play"] = new MakeStepCommand(manager);
+    commandsMap["close"] = new CloseGameCommand(manager);*/
 }
 void CommandsManager::ExecuteCommand(string command, vector<string> args) {
     Command *commandObj = commandsMap[command];
     commandObj->Execute(args);
+}
+
+void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
+    ostringstream ss;
+    ss << clientSocket;
+    vector<string> args;
+    args.push_back(ss.str());
+    //Might fuck the buisness.
+    std::size_t foundIndex;
+    string command;
+
+    while (foundIndex = (dataFromClient.find(' ') != string::npos)) {
+        string subStr = dataFromClient.substr(0, foundIndex);
+        dataFromClient = dataFromClient.substr(foundIndex + 1, dataFromClient.size() - foundIndex);
+        if (subStr.find('<') != string::npos) {
+            args.push_back(subStr);
+        }
+        else {
+            command = subStr;
+        }
+    }
+
+    for (int i = 1; i < args.size(); i++) {
+        args[i] = args[i].substr(1, args[i].size() - 2);
+    }
+
+    ExecuteCommand(command, args);
+
 }
 
 CommandsManager::~CommandsManager() {
