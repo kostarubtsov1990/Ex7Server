@@ -16,6 +16,7 @@ CommandsManager::CommandsManager() {
     ReversiGameManager reversiManager;
     GameManager* manager = &reversiManager;
 
+    //Initiallize commandsMap with the possible commands that can be sent by client
     commandsMap["start"] = new NewGameCommand(manager);
     commandsMap["list_games"] = new ListGameCommand(manager);
     commandsMap["join"] = new JoinGameCommand(manager);
@@ -23,8 +24,13 @@ CommandsManager::CommandsManager() {
     /*commandsMap["play"] = new MakeStepCommand(manager);
     commandsMap["close"] = new CloseGameCommand(manager);*/
 }
+
+//activate the Execute object of the relevant command
 void CommandsManager::ExecuteCommand(string command, vector<string> args) {
+    //extracting the relevant command from the commandsMap.
     Command *commandObj = commandsMap[command];
+    //this line will invoke the operation that handles the command sent by the client
+    //(throught the ReversiGameManager object that each command holds.
     commandObj->Execute(args);
 }
 

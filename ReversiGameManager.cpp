@@ -9,29 +9,30 @@
 void ReversiGameManager::StartNewGame(string name) {
 
     string message;
-
+    //check if the requested game exists
     if (IsKeyExist<string, ActiveGame>(name, nameToGameObject)) {
         message = "-1";
         //Game with this name exist to ask client to choose another name.
         int n = write(currentClientSocket, message.c_str(), strlen(message) + 1);
         return;
     }
-
+    //game exists. attach client's socket to game's name (using socketToGameName map)
     socketToGameName[currentClientSocket] = name;
-
+    //create new object for activeGame andd add the client to its vector of players.
     ActiveGame activeGame;
     activeGame.AddPlayer(currentClientSocket);
 
+    //attaching game's name to the game object using the nameToGameObject map.
     nameToGameObject[name] = activeGame;
 
     message = "game_created_successfully";
-
+    //notify the client that a new game was created successfully.
     int n = write(currentClientSocket, message.c_str(), strlen(message) + 1);
 }
 
 void ReversiGameManager::JoinGame(string name) {
     string message;
-
+    //check if the requested game exists.
     if (!IsKeyExist<string, ActiveGame>(name, nameToGameObject)) {
         message = "game_not_exist";
         //Game with this name exist to ask client to choose another name.
@@ -40,11 +41,12 @@ void ReversiGameManager::JoinGame(string name) {
     }
 
 
-
+    //extracting game's name from the socketToGameName map
     string gameName = socketToGameName[currentClientSocket];
+    //using the gameName, extract the game object from the nameToGameObject map.
     ActiveGame activeGame = nameToGameObject[gameName];
 
-
+    //game is occupied. ask the client to join another game
     if (activeGame.GetNumOfPlayers() > 1) {
         message = "game_is_full";
         //Game with this name exist to ask client to choose another name.
@@ -54,11 +56,16 @@ void ReversiGameManager::JoinGame(string name) {
 
 
     message = "joined_to_game";
-
+    //add the client to the game by pushing its socket to the players' vector.
     activeGame.AddPlayer(currentClientSocket);
 
+    //send the client a message indicating that he joined successfully to the game that he asked to join.
     int n = write(currentClientSocket, message.c_str(), strlen(message) + 1);
 
+    /*
+     * create a thread that will run the function GameHandler. From now on, two players
+     * can play the reversiGame.
+     */
     pthread_t thread;
     int result = pthread_create(&thread, NULL, GameHandler, (void *) &currentClientSocket);
 
@@ -72,12 +79,14 @@ void ReversiGameManager::ListGames() {
 
     //Append all the game names to a message.
     map<string, ActiveGame>::iterator it;
+    //IF NO GAMES AVAILABLE, EITHER SEND A MESSAGE THAT INFORMING THE CLIENT THAT NO GAME ARE
+    //AVAILABLE, OR CHECK IT IN THE CLIENT SIDE.
     for (it = nameToGameObject.begin(); it != nameToGameObject.end(); it++) {
         message += (it->first + "\n");
     }
-
+    //send a string with active games (not necessariliy games that the client can join)
     int n = write(currentClientSocket, message.c_str(), strlen(message) + 1);
-    //Close client connection
+    //Close client connection (in order to avoid resources' wasting, since client might not ask to join a game)
     close(currentClientSocket);
 }
 
@@ -85,17 +94,19 @@ void ReversiGameManager::PlayMove(int x, int y) {
 
     string message;
 
-
+    //check if the socket key is contained in the socketToGameName map
     if (!IsKeyExist<int , string>(currentClientSocket, socketToGameName)) {
         message = "game_not_exist";
         //Game with this name exist to ask client to choose another name.
         int n = write(currentClientSocket, message.c_str(), strlen(message) + 1);
         return;
     }
-
+    //socket key is contained in the socketToGameName map. extract game's name associated with this socket
     string gameName = socketToGameName[currentClientSocket];
+    //extract the game itself from the nameToGameObject map
     ActiveGame activeGame = nameToGameObject[gameName];
 
+    //extract the socket of the opponent player from the players vector of the activeGame.
     int opponentSocket = activeGame.ReturnOpponentPlayerSocket(currentClientSocket);
 
     int n = write(opponentSocket, &x, sizeof(x));
@@ -187,6 +198,7 @@ gameStatus ReversiGameManager::handleDirection(int from, int to) {
     }
 }
 
+//given a key and a map, check if the map contains the specified key or not.
 template <class T, class U>
 bool ReversiGameManager::IsKeyExist(T Key, map <T, U> mapToSearch) {
     map<T, U>::iterator it;
