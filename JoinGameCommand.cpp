@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include "JoinGameCommand.h"
 
-JoinGameCommand::JoinGameCommand(GameManager *manager) : manager(manager){}
+JoinGameCommand::JoinGameCommand(GameManager *manager) : Command::Command(manager){}
 
 void JoinGameCommand::Execute(vector <string> args) {
     //args[0] will be the client's socket integer.

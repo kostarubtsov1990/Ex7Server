@@ -3,3 +3,6 @@
 //
 
 #include "Command.h"
+Command::Command(GameManager *managerVal) {
+    manager = managerVal;
+}

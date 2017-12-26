@@ -14,6 +14,7 @@ class Command {
 protected:
     GameManager* manager;
 public:
+    Command (GameManager* manager);
     virtual void Execute (vector <string> args) = 0;
 };
 

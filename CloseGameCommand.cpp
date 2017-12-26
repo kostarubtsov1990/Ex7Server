@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include "CloseGameCommand.h"
 
-CloseGameCommand::CloseGameCommand(GameManager *manager) : manager(manager){}
+CloseGameCommand::CloseGameCommand(GameManager *manager) : Command::Command(manager){}
 
 void CloseGameCommand::Execute(vector <string> args) {
     //args[0] will be the client's socket integer.

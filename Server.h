@@ -7,8 +7,18 @@
 
 #include "CommandsManager.h"
 
-enum player {firstPlayer, secondPlayer};
-enum gameStatus {inProgress, finished};
+void* ClientHandler(void *args);
+void* AcceptClientHandler(void *args);
+
+typedef struct {
+    int serverSocket;
+    vector <int> clientSockets;
+} acceptHandlerArgs;
+
+typedef struct {
+    int serverSocket;
+    CommandsManager* commandMap;
+} clientHandlerArgs;
 
 class Server {
 public:
@@ -22,10 +32,9 @@ private:
     int port;
     int serverSocket; // the socket's file descriptor
     CommandsManager* commandMap;
+    vector <int> clientSockets;
 
-    int connectPlayer (player player);
-    void* ClientHandler (void* args);
-    void* AcceptClientHandler (void* args);
+    //int connectPlayer (player player);
 };
 
 

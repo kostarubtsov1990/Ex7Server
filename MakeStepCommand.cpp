@@ -2,9 +2,10 @@
 // Created by kostarubtsov1990 on 24/12/17.
 //
 
+#include <cstdlib>
 #include "MakeStepCommand.h"
 
-MakeStepCommand::MakeStepCommand(GameManager *manager) : manager(manager){}
+MakeStepCommand::MakeStepCommand(GameManager *manager) : Command::Command(manager){}
 
 void MakeStepCommand::Execute(vector <string> args) {
     //args[0] will be the client's socket integer.

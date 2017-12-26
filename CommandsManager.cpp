@@ -39,7 +39,6 @@ void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
     ss << clientSocket;
     vector<string> args;
     args.push_back(ss.str());
-    //Might fuck the buisness.
     std::size_t foundIndex;
     string command;
 

@@ -6,7 +6,7 @@
 #include "NewGameCommand.h"
 
 
-NewGameCommand::NewGameCommand(GameManager *manager) : manager(manager){}
+NewGameCommand::NewGameCommand(GameManager *manager) : Command::Command(manager){}
 
 void NewGameCommand::Execute(vector <string> args) {
     //args[0] will be the client's socket integer.

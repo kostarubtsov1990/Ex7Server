@@ -62,7 +62,12 @@ void Server::start() {
      *to listening clients connections and will run in an infinite loop that will allocate a thread
      *every time a client is connected. this thread will handle the command string that this client is about to send.
       */
-    int result = pthread_create(&thread, NULL, AcceptClientHandler, NULL);
+
+    acceptHandlerArgs *args = new acceptHandlerArgs;
+    args->serverSocket = serverSocket;
+    args->clientSockets = clientSockets;
+
+    int result = pthread_create(&thread, NULL, AcceptClientHandler, args);
 
     if (result) {
         cout << "Error: unable to create thread, " << result << endl;
@@ -78,12 +83,17 @@ void Server::start() {
         cin >> exitCommand;
     }
 
+
     //TO DO: stop the accept thread and also inform clients about server termination
     //TO DO: close all the client threads
-
+    //Close the connections with all clients.
+    for (int i=0; i < clientSockets.size(); i++) {
+        int n = write(clientSockets[i], "good_bye", sizeof("good_bye"));
+        close(clientSockets[i]);
+    }
 }
 
-int Server::connectPlayer(player player) {
+/*int Server::connectPlayer(player player) {
     string massage;
 
     if (player == firstPlayer)
@@ -115,7 +125,7 @@ int Server::connectPlayer(player player) {
         return -1;
     }
     return playerClientSocket;
-}
+}*/
 /*
  * this method is invoked immediately after client is connected to the server, and
  * it runs in a seperate thread.
@@ -129,18 +139,20 @@ int Server::connectPlayer(player player) {
  * The CommandHandler will extract the specific command object.
  * Through the GameManager object, that each command object holds, the relevant operation will be performed.
  */
-void* Server::ClientHandler(void *args) {
+void* ClientHandler(void *args) {
+    clientHandlerArgs* handlerArgs = (clientHandlerArgs*)args;
+
     while (true) {
         char clientQueryBuffer[BUF_SIZE];
-        int *playerClientSocket = (int *) args;
-        int n = read(*playerClientSocket, clientQueryBuffer, sizeof(clientQueryBuffer));
+        int playerClientSocket = handlerArgs->serverSocket;
+        int n = read(playerClientSocket, clientQueryBuffer, sizeof(clientQueryBuffer));
         //If client sends list_game command, after the client receive the game list
         //the server closes the connection with the client.
         if (n == 0) {
             break;
         }
         //handle the commands string that the client has just sent.
-        commandMap->CommandHandler(*playerClientSocket, clientQueryBuffer);
+        handlerArgs->commandMap->CommandHandler(playerClientSocket, clientQueryBuffer);
     }
 }
 
@@ -150,7 +162,9 @@ void* Server::ClientHandler(void *args) {
  * a thread that handles the possible commands that the client can send, is allocated for him.
  * Meanwhile, the
  */
-void* Server::AcceptClientHandler(void *args) {
+void* AcceptClientHandler(void *args) {
+    acceptHandlerArgs* handlerArgs = (acceptHandlerArgs*)args;
+
     while (true) {
         cout << "Waiting for client connection...." << endl;
 
@@ -158,7 +172,8 @@ void* Server::AcceptClientHandler(void *args) {
         struct sockaddr_in clientAddress;
         socklen_t clientAddressLen = sizeof(clientAddress);
         //after this line, client is connected to server (send him a message that he is connected?)
-        int playerClientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
+        int playerClientSocket = accept(handlerArgs->serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
+        handlerArgs->clientSockets.push_back(playerClientSocket);
 
         pthread_t thread;
         //create a thread that runs the ClientHandler method

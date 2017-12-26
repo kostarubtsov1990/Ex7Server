@@ -10,9 +10,21 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <zconf.h>
+#include <cstring>
 #define BUF_SIZE 1024
+
 enum player {firstPlayer, secondPlayer};
 enum gameStatus {inProgress, finished};
+void* GameHandler(void *args);
+gameStatus handleDirection(int from, int to);
+
+
+typedef struct {
+    int joinedPlayerClientSocket;
+    int hostPlayerClientSocket;
+    gameStatus (*handleDirection)(int, int);
+} gameHandlerArgs;
 
 using namespace std;
 
@@ -20,8 +32,7 @@ class ReversiGameManager : public GameManager{
 private:
     template <class T, class U>
     bool IsKeyExist(T Key, map <T, U> mapToSearch);
-    void* GameHandler (void* args);
-    gameStatus handleDirection(int from, int to);
+
 public:
     virtual void StartNewGame (string name);
     virtual void ListGames ();
