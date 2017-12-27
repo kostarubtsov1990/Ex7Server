@@ -13,8 +13,8 @@
 
 
 CommandsManager::CommandsManager() {
-    ReversiGameManager reversiManager;
-    GameManager* manager = &reversiManager;
+
+    GameManager* manager = new ReversiGameManager;
 
     //Initiallize commandsMap with the possible commands that can be sent by client
     commandsMap["start"] = new NewGameCommand(manager);
@@ -42,7 +42,8 @@ void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
     std::size_t foundIndex;
     string command;
 
-    while (foundIndex = (dataFromClient.find(' ') != string::npos)) {
+    foundIndex = dataFromClient.find(' ');
+    while (foundIndex != string::npos) {
         string subStr = dataFromClient.substr(0, foundIndex);
         dataFromClient = dataFromClient.substr(foundIndex + 1, dataFromClient.size() - foundIndex);
         if (subStr.find('<') != string::npos) {
@@ -51,6 +52,13 @@ void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
         else {
             command = subStr;
         }
+        foundIndex = dataFromClient.find(' ');
+    }
+
+    if (dataFromClient.find('<') == string::npos) {
+        command = dataFromClient;
+    } else {
+        args.push_back(dataFromClient);
     }
 
     for (int i = 1; i < args.size(); i++) {

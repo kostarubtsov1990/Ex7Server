@@ -66,6 +66,7 @@ void Server::start() {
     acceptHandlerArgs *args = new acceptHandlerArgs;
     args->serverSocket = serverSocket;
     args->clientSockets = clientSockets;
+    args->commandMap = commandMap;
 
     int result = pthread_create(&thread, NULL, AcceptClientHandler, args);
 
@@ -141,19 +142,16 @@ void Server::start() {
  */
 void* ClientHandler(void *args) {
     clientHandlerArgs* handlerArgs = (clientHandlerArgs*)args;
-
-    while (true) {
-        char clientQueryBuffer[BUF_SIZE];
-        int playerClientSocket = handlerArgs->serverSocket;
-        int n = read(playerClientSocket, clientQueryBuffer, sizeof(clientQueryBuffer));
-        //If client sends list_game command, after the client receive the game list
-        //the server closes the connection with the client.
-        if (n == 0) {
-            break;
-        }
-        //handle the commands string that the client has just sent.
-        handlerArgs->commandMap->CommandHandler(playerClientSocket, clientQueryBuffer);
+    char clientQueryBuffer[BUF_SIZE];
+    int playerClientSocket = handlerArgs->clientSocket;
+    int n = read(playerClientSocket, clientQueryBuffer, sizeof(clientQueryBuffer));
+    //If client sends list_game command, after the client receive the game list
+    //the server closes the connection with the client.
+    if (n == 0) {
+        exit(-1);
     }
+    //handle the commands string that the client has just sent.
+    handlerArgs->commandMap->CommandHandler(playerClientSocket, clientQueryBuffer);
 }
 
 /*
@@ -177,7 +175,11 @@ void* AcceptClientHandler(void *args) {
 
         pthread_t thread;
         //create a thread that runs the ClientHandler method
-        int result = pthread_create(&thread, NULL, ClientHandler, (void *) &playerClientSocket);
+        clientHandlerArgs* clientArgs = new clientHandlerArgs;
+        clientArgs->clientSocket = playerClientSocket;
+        clientArgs->commandMap = handlerArgs->commandMap;
+
+        int result = pthread_create(&thread, NULL, ClientHandler, clientArgs);
 
         if (result) {
             cout << "Error: unable to create thread, " << result << endl;

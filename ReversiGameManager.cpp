@@ -40,11 +40,8 @@ void ReversiGameManager::JoinGame(string name) {
         return;
     }
 
-
-    //extracting game's name from the socketToGameName map
-    string gameName = socketToGameName[currentClientSocket];
     //using the gameName, extract the game object from the nameToGameObject map.
-    ActiveGame activeGame = nameToGameObject[gameName];
+    ActiveGame activeGame = nameToGameObject[name];
 
     //game is occupied. ask the client to join another game
     if (activeGame.GetNumOfPlayers() > 1) {
@@ -54,10 +51,13 @@ void ReversiGameManager::JoinGame(string name) {
         return;
     }
 
+    socketToGameName[currentClientSocket] = name;
 
-    message = "joined_to_game";
     //add the client to the game by pushing its socket to the players' vector.
     activeGame.AddPlayer(currentClientSocket);
+    nameToGameObject[name] = activeGame;
+
+    message = "joined_to_game";
 
     //send the client a message indicating that he joined successfully to the game that he asked to join.
     int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
@@ -83,9 +83,13 @@ void ReversiGameManager::JoinGame(string name) {
         exit(-1);
     }
 
+    void *status;
+
+    pthread_join(thread, &status);
+
     //Need to wait for the thread to finish.
 
-    nameToGameObject.erase(gameName);
+    nameToGameObject.erase(name);
     socketToGameName.erase(joinedPlayerClientSocket);
     socketToGameName.erase(hostPlayerClientSocket);
 
@@ -170,6 +174,12 @@ void ReversiGameManager::CloseGame(string name) {
 void* GameHandler(void *args) {
 
     gameHandlerArgs* handlerArgs = (gameHandlerArgs*)args;
+
+    //Send the clients notification about starting the game.
+    string message = "start_game";
+    //Game with this name exist to ask client to choose another name.
+    int n = write(handlerArgs->hostPlayerClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+    n = write(handlerArgs->joinedPlayerClientSocket, message.c_str(), strlen(message.c_str()) + 1);
 
     gameStatus status;
     //if status equals "finished", game is over and server keeps listening to connections from clients.

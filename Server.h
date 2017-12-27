@@ -13,10 +13,11 @@ void* AcceptClientHandler(void *args);
 typedef struct {
     int serverSocket;
     vector <int> clientSockets;
+    CommandsManager* commandMap;
 } acceptHandlerArgs;
 
 typedef struct {
-    int serverSocket;
+    int clientSocket;
     CommandsManager* commandMap;
 } clientHandlerArgs;
 
