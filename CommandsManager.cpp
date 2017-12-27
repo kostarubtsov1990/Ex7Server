@@ -7,8 +7,7 @@
 #include "ReversiGameManager.h"
 #include "ListGameCommand.h"
 #include "JoinGameCommand.h"
-#include "MakeStepCommand.h"
-#include "CloseGameCommand.h"
+#include "ExitServerCommand.h"
 #include <sstream>
 
 
@@ -20,9 +19,7 @@ CommandsManager::CommandsManager() {
     commandsMap["start"] = new NewGameCommand(manager);
     commandsMap["list_games"] = new ListGameCommand(manager);
     commandsMap["join"] = new JoinGameCommand(manager);
-    //Currently not in use
-    /*commandsMap["play"] = new MakeStepCommand(manager);
-    commandsMap["close"] = new CloseGameCommand(manager);*/
+    commandsMap["exit_server"] = new ExitServerCommand(manager);
 }
 
 //activate the Execute object of the relevant command

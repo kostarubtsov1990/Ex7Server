@@ -84,14 +84,15 @@ void Server::start() {
         cin >> exitCommand;
     }
 
-
-    //TO DO: stop the accept thread and also inform clients about server termination
-    //TO DO: close all the client threads
-    //Close the connections with all clients.
-    for (int i=0; i < clientSockets.size(); i++) {
+    //This solution not optimal because some of the clients sockets already have been closed from within
+    //the Receiver object thus there client sockets that are already dead.
+    /*for (int i=0; i < clientSockets.size(); i++) {
         int n = write(clientSockets[i], "good_bye", sizeof("good_bye"));
         close(clientSockets[i]);
-    }
+    }*/
+
+    //The solution to the above problem:
+    commandMap->CommandHandler(0, "exit_server");
 }
 
 /*

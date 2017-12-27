@@ -136,7 +136,9 @@ void ReversiGameManager::ListGames() {
     close(currentClientSocket);
 }
 
-void ReversiGameManager::PlayMove(int x, int y) {
+
+//To Delete at last
+/*void ReversiGameManager::PlayMove(int x, int y) {
 
     string message;
 
@@ -187,7 +189,7 @@ void ReversiGameManager::CloseGame(string name) {
     //TO DO: continue writing closing routine
 
 
-}
+}*/
 
 void* GameHandler(void *args) {
 

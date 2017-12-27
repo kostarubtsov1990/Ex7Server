@@ -46,8 +46,9 @@ public:
     virtual void StartNewGame (string name);
     virtual void ListGames ();
     virtual void JoinGame (string name);
-    virtual void PlayMove (int x, int y);
-    virtual void CloseGame (string name);
+    //To delete at last.
+    /*virtual void PlayMove (int x, int y);
+    virtual void CloseGame (string name);*/
     virtual void SetCurrentClientSocket (int currentClientSocket);
 
 };
