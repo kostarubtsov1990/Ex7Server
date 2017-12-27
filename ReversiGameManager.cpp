@@ -67,15 +67,27 @@ void ReversiGameManager::JoinGame(string name) {
      * can play the reversiGame.
      */
     pthread_t thread;
-
+    //joined player id
     int joinedPlayerClientSocket = currentClientSocket;
+    //first player id
     int hostPlayerClientSocket = activeGame.ReturnOpponentPlayerSocket(joinedPlayerClientSocket);
 
+    /*struct that holds the sockets of both players and pointer to the handleDirection function
+     *this struct will be sent as an argument to the function GameHandler. GameHandler is a function
+     * that will be run by the following thread.
+     */
     gameHandlerArgs* handlerArgs = new gameHandlerArgs;
     handlerArgs->joinedPlayerClientSocket = currentClientSocket;
     handlerArgs->hostPlayerClientSocket = hostPlayerClientSocket;
     handlerArgs->handleDirection = handleDirection;
 
+    /*
+     *here a thread that will run the GameHandler function is created.
+     * Actually, this thread handles a game between two clients. GameHandler has all the necessary
+     * information to handle a game properly - socket of first client, socket of the client that joined
+     * to the game, and pointer to the function handleDirection that responsible for transaction between one
+     * client to another.
+     */
     int result = pthread_create(&thread, NULL, GameHandler, handlerArgs);
 
     if (result) {
@@ -83,14 +95,21 @@ void ReversiGameManager::JoinGame(string name) {
         exit(-1);
     }
 
-    void *status;
 
+    void *status;
+    /*
+     * block the ClientHandler thread. Actually, the thread that runs the ClientHandler function, waits on this line
+     * till the thread that runs GameHandler dies (=the game it handles is over).
+     */
     pthread_join(thread, &status);
 
     //Need to wait for the thread to finish.
 
+    //the thread that runs the ClientHandler function removes the game's name (=key) and the game (=ActiveGame)
     nameToGameObject.erase(name);
+    //remove (joined player socket, game's name)
     socketToGameName.erase(joinedPlayerClientSocket);
+    //remove (jost player socket, game's name)
     socketToGameName.erase(hostPlayerClientSocket);
 
 }
@@ -101,8 +120,7 @@ void ReversiGameManager::ListGames() {
 
     //Append all the game names to a message.
     map<string, ActiveGame>::iterator it;
-    //IF NO GAMES AVAILABLE, EITHER SEND A MESSAGE THAT INFORMING THE CLIENT THAT NO GAME ARE
-    //AVAILABLE, OR CHECK IT IN THE CLIENT SIDE.
+
     if (nameToGameObject.empty()) {
         message = "No games are available";
     }
@@ -177,8 +195,9 @@ void* GameHandler(void *args) {
 
     //Send the clients notification about starting the game.
     string message = "start_game";
-    //Game with this name exist to ask client to choose another name.
+    //send start_game message to the player who opened the game
     int n = write(handlerArgs->hostPlayerClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+    //send start message to the player who joined the game
     n = write(handlerArgs->joinedPlayerClientSocket, message.c_str(), strlen(message.c_str()) + 1);
 
     gameStatus status;

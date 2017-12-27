@@ -94,39 +94,6 @@ void Server::start() {
     }
 }
 
-/*int Server::connectPlayer(player player) {
-    string massage;
-
-    if (player == firstPlayer)
-        massage = "wait_for_opponent";
-    else
-        massage = "Wait_for_first_move";
-
-    //Define the client socket's structures
-    struct sockaddr_in clientAddress;
-    socklen_t clientAddressLen = sizeof(clientAddress);
-
-
-    //Accept a new client connection
-    int playerClientSocket = accept(serverSocket,(struct sockaddr*)&clientAddress, &clientAddressLen);
-
-    if (playerClientSocket == -1)
-        throw "Error on accept first client";
-
-    if (player == firstPlayer)
-        cout << "first player connected" << endl;
-    else
-        cout << "second player connected" << endl;
-
-    //send message to the relevant player
-    int n = write(playerClientSocket, massage.c_str(), strlen(massage.c_str()) + 1);
-
-    if (n == -1) {
-        cout << "Error writing to socket" << endl;
-        return -1;
-    }
-    return playerClientSocket;
-}*/
 /*
  * this method is invoked immediately after client is connected to the server, and
  * it runs in a seperate thread.
@@ -150,15 +117,20 @@ void* ClientHandler(void *args) {
     if (n == 0) {
         exit(-1);
     }
-    //handle the commands string that the client has just sent.
+    /*handle the commands string that the client has just sent:
+     *parsing client's input, call ExecuteCommand method of CommandsManager.cpp,
+     *that will activate Execute method of the specific command.
+     * the Execute method of the specific command will call the correct method in ReversiGameManager.cpp.
+     */
     handlerArgs->commandMap->CommandHandler(playerClientSocket, clientQueryBuffer);
+    //here the thread is dead (after the corresponding function in reversiGameManager is finished)
 }
 
 /*
  * this method is called from the start method of this class.
  * it keeps listening to connections for optional clients. Once a client is connected,
  * a thread that handles the possible commands that the client can send, is allocated for him.
- * Meanwhile, the
+ * Meanwhile, the server keeps listening to new connections of clients
  */
 void* AcceptClientHandler(void *args) {
     acceptHandlerArgs* handlerArgs = (acceptHandlerArgs*)args;
@@ -174,11 +146,13 @@ void* AcceptClientHandler(void *args) {
         handlerArgs->clientSockets.push_back(playerClientSocket);
 
         pthread_t thread;
-        //create a thread that runs the ClientHandler method
+
         clientHandlerArgs* clientArgs = new clientHandlerArgs;
         clientArgs->clientSocket = playerClientSocket;
         clientArgs->commandMap = handlerArgs->commandMap;
-
+        /*create a thread that runs the ClientHandler function.
+         *ClientHandler function is responsible for handling possible commands
+         */
         int result = pthread_create(&thread, NULL, ClientHandler, clientArgs);
 
         if (result) {

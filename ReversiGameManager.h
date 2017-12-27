@@ -16,10 +16,19 @@
 
 enum player {firstPlayer, secondPlayer};
 enum gameStatus {inProgress, finished};
+
+//GameHandler is runned by thread
 void* GameHandler(void *args);
+
+//handle one transaction between two players in a game.
 gameStatus handleDirection(int from, int to);
 
-
+/*
+ *this struct contains the sockets of two players in a game and a pointer to the
+ * handleDirection function.
+ *instance of this class is created in void ReversiGameManager::JoinGame(string name).
+ *where it is passed as an argument to the GameHandler function that is runned in a thread
+ */
 typedef struct {
     int joinedPlayerClientSocket;
     int hostPlayerClientSocket;

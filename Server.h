@@ -7,8 +7,14 @@
 
 #include "CommandsManager.h"
 
+/*
+ * these functions will be run by threads:
+ * ClientHandler function is run by thread from Server.cpp: void* AcceptClientHandler(void *args)
+ * AcceptClientHandler is run by thread from: void Server::start()
+ */
 void* ClientHandler(void *args);
 void* AcceptClientHandler(void *args);
+
 
 typedef struct {
     int serverSocket;
