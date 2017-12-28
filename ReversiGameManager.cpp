@@ -26,7 +26,7 @@ void ReversiGameManager::StartNewGame(string name) {
     //attaching game's name to the game object using the nameToGameObject map.
     nameToGameObject[name] = activeGame;
 
-    message = "game created successfully! Please wait till your opponent join your game...";
+    message = "game_created_successfully";
     //notify the client that a new game was created successfully.
     int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
 }
