@@ -10,6 +10,7 @@
 #include <string.h>
 #include <fstream>
 #include <cstdlib>
+#include <algorithm>
 
 
 using namespace std;
@@ -65,10 +66,14 @@ void Server::start() {
 
     acceptHandlerArgs *args = new acceptHandlerArgs;
     args->serverSocket = serverSocket;
-    args->clientSockets = clientSockets;
     args->commandMap = commandMap;
+    args->activeThreads = &activeThreads;
+    args->clientSockets = &clientSockets;
 
     int result = pthread_create(&thread, NULL, AcceptClientHandler, args);
+
+    //Add thread that runs  AcceptClientHandler function to list of active threads.
+    activeThreads.push_back(thread);
 
     if (result) {
         cout << "Error: unable to create thread, " << result << endl;
@@ -93,6 +98,7 @@ void Server::start() {
 
     //The solution to the above problem:
     commandMap->CommandHandler(0, "exit_server");
+    CloseRoutine();
 }
 
 /*
@@ -124,6 +130,14 @@ void* ClientHandler(void *args) {
      * the Execute method of the specific command will call the correct method in ReversiGameManager.cpp.
      */
     handlerArgs->commandMap->CommandHandler(playerClientSocket, clientQueryBuffer);
+
+    vector <int >::iterator socketToErase = find(handlerArgs->clientSockets->begin(), handlerArgs->clientSockets->end(), playerClientSocket);
+    if(socketToErase != handlerArgs->clientSockets->end())
+        handlerArgs->clientSockets->erase(socketToErase);
+
+    vector <pthread_t>::iterator toErase = find(handlerArgs->activeThreads->begin(), handlerArgs->activeThreads->end(), pthread_self());
+    if(toErase != handlerArgs->activeThreads->end())
+        handlerArgs->activeThreads->erase(toErase);
     //here the thread is dead (after the corresponding function in reversiGameManager is finished)
 }
 
@@ -144,17 +158,21 @@ void* AcceptClientHandler(void *args) {
         socklen_t clientAddressLen = sizeof(clientAddress);
         //after this line, client is connected to server (send him a message that he is connected?)
         int playerClientSocket = accept(handlerArgs->serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
-        handlerArgs->clientSockets.push_back(playerClientSocket);
+        handlerArgs->clientSockets->push_back(playerClientSocket);
 
         pthread_t thread;
 
         clientHandlerArgs* clientArgs = new clientHandlerArgs;
         clientArgs->clientSocket = playerClientSocket;
         clientArgs->commandMap = handlerArgs->commandMap;
+        clientArgs->activeThreads = handlerArgs->activeThreads;
+        clientArgs->clientSockets = handlerArgs->clientSockets;
         /*create a thread that runs the ClientHandler function.
          *ClientHandler function is responsible for handling possible commands
          */
         int result = pthread_create(&thread, NULL, ClientHandler, clientArgs);
+
+        handlerArgs->activeThreads->push_back(thread);
 
         if (result) {
             cout << "Error: unable to create thread, " << result << endl;
@@ -163,5 +181,10 @@ void* AcceptClientHandler(void *args) {
     }
 }
 
+void Server::CloseRoutine() {
+    for (int i=0; i < activeThreads.size(); i++) {
+        pthread_cancel(activeThreads[i]);
+    }
+}
 
 void Server::stop() {}

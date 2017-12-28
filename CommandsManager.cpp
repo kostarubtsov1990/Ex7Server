@@ -38,28 +38,26 @@ void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
     args.push_back(ss.str());
     std::size_t foundIndex;
     string command;
+    bool first = true;
 
     foundIndex = dataFromClient.find(' ');
     while (foundIndex != string::npos) {
         string subStr = dataFromClient.substr(0, foundIndex);
         dataFromClient = dataFromClient.substr(foundIndex + 1, dataFromClient.size() - foundIndex);
-        if (subStr.find('<') != string::npos) {
+        if (!first) {
             args.push_back(subStr);
         }
         else {
+            first = false;
             command = subStr;
         }
         foundIndex = dataFromClient.find(' ');
     }
 
-    if (dataFromClient.find('<') == string::npos) {
+    if (!first) {
         command = dataFromClient;
     } else {
         args.push_back(dataFromClient);
-    }
-
-    for (int i = 1; i < args.size(); i++) {
-        args[i] = args[i].substr(1, args[i].size() - 2);
     }
 
     ExecuteCommand(command, args);

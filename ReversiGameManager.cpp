@@ -4,6 +4,7 @@
 
 
 #include <cstdlib>
+#include <algorithm>
 #include "ReversiGameManager.h"
 
 void ReversiGameManager::StartNewGame(string name) {
@@ -95,6 +96,7 @@ void ReversiGameManager::JoinGame(string name) {
         exit(-1);
     }
 
+    activeThreads.push_back(thread);
 
     void *status;
     /*
@@ -102,6 +104,10 @@ void ReversiGameManager::JoinGame(string name) {
      * till the thread that runs GameHandler dies (=the game it handles is over).
      */
     pthread_join(thread, &status);
+
+    vector <pthread_t>::iterator toErase = find(activeThreads.begin(), activeThreads.end(), thread);
+    if(toErase != activeThreads.end())
+        activeThreads.erase(toErase);
 
     //Need to wait for the thread to finish.
 

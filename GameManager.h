@@ -15,6 +15,7 @@ protected:
     //Game list
     map <string, ActiveGame> nameToGameObject;
     map <int , string> socketToGameName;
+    vector <pthread_t> activeThreads;
     int currentClientSocket;
 public:
     virtual void StartNewGame (string name) = 0;
