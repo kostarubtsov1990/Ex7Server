@@ -133,7 +133,9 @@ void ReversiGameManager::ListGames() {
 
     else {
         for (it = nameToGameObject.begin(); it != nameToGameObject.end(); it++) {
-            message += (it->first + "\n");
+            if (it->second.GetNumOfPlayers() == 1) {
+                message += (it->first + "\n");
+            }
         }
     }
     //send a string with active games (not necessariliy games that the client can join)
