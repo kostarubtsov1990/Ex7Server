@@ -55,9 +55,10 @@ void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
     }
 
     if (!first) {
-        command = dataFromClient;
-    } else {
         args.push_back(dataFromClient);
+    } else {
+        command = dataFromClient;
+
     }
 
     ExecuteCommand(command, args);

@@ -26,7 +26,7 @@ void ReversiGameManager::StartNewGame(string name) {
     //attaching game's name to the game object using the nameToGameObject map.
     nameToGameObject[name] = activeGame;
 
-    message = "game_created_successfully";
+    message = "game created successfully! Please wait till your opponent join your game...";
     //notify the client that a new game was created successfully.
     int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
 }
@@ -35,7 +35,7 @@ void ReversiGameManager::JoinGame(string name) {
     string message;
     //check if the requested game exists.
     if (!IsKeyExist<string, ActiveGame>(name, nameToGameObject)) {
-        message = "game_not_exist";
+        message = "game doesnt exist!\n";
         //Game with this name exist to ask client to choose another name.
         int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
         return;
@@ -46,7 +46,7 @@ void ReversiGameManager::JoinGame(string name) {
 
     //game is occupied. ask the client to join another game
     if (activeGame.GetNumOfPlayers() > 1) {
-        message = "game_is_full";
+        message = "game is full!\n";
         //Game with this name exist to ask client to choose another name.
         int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
         return;
@@ -128,7 +128,7 @@ void ReversiGameManager::ListGames() {
     map<string, ActiveGame>::iterator it;
 
     if (nameToGameObject.empty()) {
-        message = "No games are available";
+        message = "No games are available\n";
     }
 
     else {

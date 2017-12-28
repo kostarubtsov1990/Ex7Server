@@ -82,6 +82,7 @@ void Server::start() {
 
     string exitCommand;
 
+    
     //Wait for exit command from the server side user.
     cin >> exitCommand;
 
@@ -95,6 +96,7 @@ void Server::start() {
         int n = write(clientSockets[i], "good_bye", sizeof("good_bye"));
         close(clientSockets[i]);
     }*/
+
 
     //The solution to the above problem:
     commandMap->CommandHandler(0, "exit_server");
