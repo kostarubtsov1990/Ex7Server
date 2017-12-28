@@ -18,7 +18,6 @@ void* AcceptClientHandler(void *args);
 
 typedef struct {
     int serverSocket;
-    vector <int> *clientSockets;
     CommandsManager* commandMap;
     vector <pthread_t> *activeThreads;
 
@@ -28,7 +27,6 @@ typedef struct {
     int clientSocket;
     CommandsManager* commandMap;
     vector <pthread_t> *activeThreads;
-    vector <int> *clientSockets;
 } clientHandlerArgs;
 
 class Server {
@@ -43,7 +41,6 @@ private:
     int port;
     int serverSocket; // the socket's file descriptor
     CommandsManager* commandMap;
-    vector <int> clientSockets;
     vector <pthread_t> activeThreads;
     void CloseRoutine();
     //int connectPlayer (player player);

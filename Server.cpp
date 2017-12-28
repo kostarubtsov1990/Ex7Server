@@ -68,7 +68,6 @@ void Server::start() {
     args->serverSocket = serverSocket;
     args->commandMap = commandMap;
     args->activeThreads = &activeThreads;
-    args->clientSockets = &clientSockets;
 
     int result = pthread_create(&thread, NULL, AcceptClientHandler, args);
 
@@ -133,10 +132,6 @@ void* ClientHandler(void *args) {
      */
     handlerArgs->commandMap->CommandHandler(playerClientSocket, clientQueryBuffer);
 
-    vector <int >::iterator socketToErase = find(handlerArgs->clientSockets->begin(), handlerArgs->clientSockets->end(), playerClientSocket);
-    if(socketToErase != handlerArgs->clientSockets->end())
-        handlerArgs->clientSockets->erase(socketToErase);
-
     vector <pthread_t>::iterator toErase = find(handlerArgs->activeThreads->begin(), handlerArgs->activeThreads->end(), pthread_self());
     if(toErase != handlerArgs->activeThreads->end())
         handlerArgs->activeThreads->erase(toErase);
@@ -160,7 +155,6 @@ void* AcceptClientHandler(void *args) {
         socklen_t clientAddressLen = sizeof(clientAddress);
         //after this line, client is connected to server (send him a message that he is connected?)
         int playerClientSocket = accept(handlerArgs->serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
-        handlerArgs->clientSockets->push_back(playerClientSocket);
 
         pthread_t thread;
 
@@ -168,7 +162,6 @@ void* AcceptClientHandler(void *args) {
         clientArgs->clientSocket = playerClientSocket;
         clientArgs->commandMap = handlerArgs->commandMap;
         clientArgs->activeThreads = handlerArgs->activeThreads;
-        clientArgs->clientSockets = handlerArgs->clientSockets;
         /*create a thread that runs the ClientHandler function.
          *ClientHandler function is responsible for handling possible commands
          */
