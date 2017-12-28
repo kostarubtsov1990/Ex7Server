@@ -29,7 +29,6 @@ Server::Server(CommandsManager* commMap) {
     port = atoi(portString.c_str());
 
     commandMap = commMap;
-
 }
 
 Server::Server(int port): port(port), serverSocket(0) {
@@ -54,8 +53,10 @@ void Server::start() {
     if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
         throw "Error on binding";
     }
-    listen(serverSocket,MAX_CONNECTED_CLIENTS);
-
+    int n = listen(serverSocket,MAX_CONNECTED_CLIENTS);
+    if (n) {
+        throw "Error on listening";
+    }
 
     pthread_t thread;
     /*
@@ -72,17 +73,15 @@ void Server::start() {
 
     int result = pthread_create(&thread, NULL, AcceptClientHandler, args);
 
-    //Add thread that runs  AcceptClientHandler function to list of active threads.
-    activeThreads.push_back(thread);
-
     if (result) {
         cout << "Error: unable to create thread, " << result << endl;
         exit(-1);
     }
+    //Add thread that runs  AcceptClientHandler function to list of active threads.
+    activeThreads.push_back(thread);
 
     string exitCommand;
 
-    
     //Wait for exit command from the server side user.
     cin >> exitCommand;
 
@@ -96,7 +95,6 @@ void Server::start() {
         int n = write(clientSockets[i], "good_bye", sizeof("good_bye"));
         close(clientSockets[i]);
     }*/
-
 
     //The solution to the above problem:
     commandMap->CommandHandler(0, "exit_server");
@@ -160,6 +158,10 @@ void* AcceptClientHandler(void *args) {
         socklen_t clientAddressLen = sizeof(clientAddress);
         //after this line, client is connected to server (send him a message that he is connected?)
         int playerClientSocket = accept(handlerArgs->serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
+        if (playerClientSocket == -1) {
+            cout << "Error: unable to accept client " << endl;
+            exit(-1);
+        }
         handlerArgs->clientSockets->push_back(playerClientSocket);
 
         pthread_t thread;
@@ -174,18 +176,20 @@ void* AcceptClientHandler(void *args) {
          */
         int result = pthread_create(&thread, NULL, ClientHandler, clientArgs);
 
-        handlerArgs->activeThreads->push_back(thread);
-
         if (result) {
             cout << "Error: unable to create thread, " << result << endl;
             exit(-1);
         }
+        handlerArgs->activeThreads->push_back(thread);
     }
 }
 
 void Server::CloseRoutine() {
     for (int i=0; i < activeThreads.size(); i++) {
-        pthread_cancel(activeThreads[i]);
+        if (pthread_cancel(activeThreads[i])) {
+            cout << "Error: unable to cancel a thread" << endl;
+            exit(-1);
+        }
     }
 }
 

@@ -15,6 +15,12 @@ void ReversiGameManager::StartNewGame(string name) {
         message = "-1";
         //Game with this name exist to ask client to choose another name.
         int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+        if (n == -1) {
+            cout << "Error" << endl;
+        }
+        if (n == 0) {
+            cout << "No Connection" << endl;
+        }
         return;
     }
     //game exists. attach client's socket to game's name (using socketToGameName map)
@@ -29,6 +35,12 @@ void ReversiGameManager::StartNewGame(string name) {
     message = "game_created_successfully";
     //notify the client that a new game was created successfully.
     int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+    if (n == -1) {
+        cout << "Error" << endl;
+    }
+    if (n == 0) {
+        cout << "No Connection" << endl;
+    }
 }
 
 void ReversiGameManager::JoinGame(string name) {
@@ -38,6 +50,12 @@ void ReversiGameManager::JoinGame(string name) {
         message = "game doesnt exist!\n";
         //Game with this name exist to ask client to choose another name.
         int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+        if (n == -1) {
+            cout << "Error" << endl;
+        }
+        if (n == 0) {
+            cout << "No Connection" << endl;
+        }
         return;
     }
 
@@ -49,6 +67,12 @@ void ReversiGameManager::JoinGame(string name) {
         message = "game is full!\n";
         //Game with this name exist to ask client to choose another name.
         int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+        if (n == -1) {
+            cout << "Error" << endl;
+        }
+        if (n == 0) {
+            cout << "No Connection" << endl;
+        }
         return;
     }
 
@@ -62,6 +86,12 @@ void ReversiGameManager::JoinGame(string name) {
 
     //send the client a message indicating that he joined successfully to the game that he asked to join.
     int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+    if (n == -1) {
+        cout << "Error" << endl;
+    }
+    if (n == 0) {
+        cout << "No Connection" << endl;
+    }
 
     /*
      * create a thread that will run the function GameHandler. From now on, two players
@@ -103,7 +133,10 @@ void ReversiGameManager::JoinGame(string name) {
      * block the ClientHandler thread. Actually, the thread that runs the ClientHandler function, waits on this line
      * till the thread that runs GameHandler dies (=the game it handles is over).
      */
-    pthread_join(thread, &status);
+    if (pthread_join(thread, &status)) {
+        cout << "Error: unable to do pthread_join" << endl;
+    }
+
 
     vector <pthread_t>::iterator toErase = find(activeThreads.begin(), activeThreads.end(), thread);
     if(toErase != activeThreads.end())
@@ -140,6 +173,12 @@ void ReversiGameManager::ListGames() {
     }
     //send a string with active games (not necessariliy games that the client can join)
     int n = write(currentClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+    if (n == -1) {
+        cout << "Error" << endl;
+    }
+    if (n == 0) {
+        cout << "No Connection" << endl;
+    }
     //Close client connection (in order to avoid resources' wasting, since client might not ask to join a game)
     close(currentClientSocket);
 }
@@ -207,8 +246,25 @@ void* GameHandler(void *args) {
     string message = "start_game";
     //send start_game message to the player who opened the game
     int n = write(handlerArgs->hostPlayerClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+    if (n == -1) {
+        cout << "Error" << endl;
+//        return (void*) n;
+    }
+    if (n == 0) {
+
+        cout << "No Connection with host player" << endl;
+ //       return (void*) n;
+    }
     //send start message to the player who joined the game
     n = write(handlerArgs->joinedPlayerClientSocket, message.c_str(), strlen(message.c_str()) + 1);
+    if (n == -1) {
+        cout << "Error" << endl;
+//        return (void*) n;
+    }
+    if (n == 0) {
+        cout << "No Connection with the player who joined" << endl;
+ //       return (void*) n;
+    }
 
     gameStatus status;
     //if status equals "finished", game is over and server keeps listening to connections from clients.
