@@ -1,6 +1,9 @@
-//
-// Created by kostarubtsov1990 on 17/12/17.
-//
+/*
+ * Name: Kosta Rubtsov
+ * Id: 319206892
+ * Name: Alon Barkan
+ * Id: 200958296
+ */
 
 #ifndef EX5SERVER_GAMEMANAGER_H
 #define EX5SERVER_GAMEMANAGER_H
@@ -21,12 +24,8 @@ public:
     virtual void StartNewGame (string name) = 0;
     virtual void ListGames () = 0;
     virtual void JoinGame (string name) = 0;
-    //To delete at last
-    /*virtual void PlayMove (int x, int y) = 0;
-    virtual void CloseGame (string name) = 0;*/
     virtual void SetCurrentClientSocket (int currentClientSocket) = 0;
     void CloseClientSocketsRoutine();
 };
-
 
 #endif //EX5SERVER_GAMEMANAGER_H

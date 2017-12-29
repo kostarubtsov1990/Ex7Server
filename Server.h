@@ -31,7 +31,6 @@ typedef struct {
 
 class Server {
 public:
-
     Server(CommandsManager* commandMap);
     Server(int port);
     void start();
@@ -42,9 +41,7 @@ private:
     int serverSocket; // the socket's file descriptor
     CommandsManager* commandMap;
     vector <pthread_t> activeThreads;
-    void CloseRoutine();
     //int connectPlayer (player player);
 };
-
 
 #endif //EX4SERVER_SERVER_H

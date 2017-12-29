@@ -1,6 +1,9 @@
-//
-// Created by kostarubtsov1990 on 24/12/17.
-//
+/*
+ * Name: Kosta Rubtsov
+ * Id: 319206892
+ * Name: Alon Barkan
+ * Id: 200958296
+ */
 
 #include "CommandsManager.h"
 #include "NewGameCommand.h"
@@ -10,10 +13,8 @@
 #include "ExitServerCommand.h"
 #include <sstream>
 
-
 CommandsManager::CommandsManager() {
-
-    GameManager* manager = new ReversiGameManager;
+    this->manager = new ReversiGameManager;
 
     //Initiallize commandsMap with the possible commands that can be sent by client
     commandsMap["start"] = new NewGameCommand(manager);
@@ -32,6 +33,7 @@ void CommandsManager::ExecuteCommand(string command, vector<string> args) {
 }
 
 void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
+    //Convert int to string and add the socket to args vector.
     ostringstream ss;
     ss << clientSocket;
     vector<string> args;
@@ -40,6 +42,7 @@ void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
     string command;
     bool first = true;
 
+    //Split the data that received from the client by spaces and save it to args vector.
     foundIndex = dataFromClient.find(' ');
     while (foundIndex != string::npos) {
         string subStr = dataFromClient.substr(0, foundIndex);
@@ -53,7 +56,6 @@ void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
         }
         foundIndex = dataFromClient.find(' ');
     }
-
     if (!first) {
         args.push_back(dataFromClient);
     } else {
@@ -61,11 +63,13 @@ void CommandsManager::CommandHandler(int clientSocket, string dataFromClient) {
 
     }
 
+    //This function will execute the concrete command from the commandMap taken by the command string key.
+    //with the appropriate args
     ExecuteCommand(command, args);
-
 }
 
 CommandsManager::~CommandsManager() {
+    delete this->manager;
     map<string, Command *>::iterator it;
     for (it = commandsMap.begin(); it !=
                                    commandsMap.end(); it++) {

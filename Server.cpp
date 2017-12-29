@@ -1,6 +1,9 @@
-//
-// Created by kostarubtsov1990 on 04/12/17.
-//
+/*
+ * Name: Kosta Rubtsov
+ * Id: 319206892
+ * Name: Alon Barkan
+ * Id: 200958296
+ */
 
 #include "Server.h"
 #include <sys/socket.h>
@@ -11,7 +14,6 @@
 #include <fstream>
 #include <cstdlib>
 #include <algorithm>
-
 
 using namespace std;
 #define MAX_CONNECTED_CLIENTS 10
@@ -27,9 +29,7 @@ Server::Server(CommandsManager* commMap) {
     getline(myfile, portString);
 
     port = atoi(portString.c_str());
-
     commandMap = commMap;
-
 }
 
 Server::Server(int port): port(port), serverSocket(0) {
@@ -65,7 +65,6 @@ void Server::start() {
      *to listening clients connections and will run in an infinite loop that will allocate a thread
      *every time a client is connected. this thread will handle the command string that this client is about to send.
       */
-
     acceptHandlerArgs *args = new acceptHandlerArgs;
     args->serverSocket = serverSocket;
     args->commandMap = commandMap;
@@ -81,25 +80,14 @@ void Server::start() {
     activeThreads.push_back(thread);
 
     string exitCommand;
-
-    
     //Wait for exit command from the server side user.
     cin >> exitCommand;
 
     while (exitCommand != "exit") {
         cin >> exitCommand;
     }
-
-    //This solution not optimal because some of the clients sockets already have been closed from within
-    //the Receiver object thus there client sockets that are already dead.
-    /*for (int i=0; i < clientSockets.size(); i++) {
-        int n = write(clientSockets[i], "good_bye", sizeof("good_bye"));
-        close(clientSockets[i]);
-    }*/
-
-    //The solution to the above problem:
+    //send message to each client that server is about to shut down, and close all sockets of connected clients
     commandMap->CommandHandler(0, "exit_server");
-    CloseRoutine();
 }
 
 /*
@@ -135,6 +123,7 @@ void* ClientHandler(void *args) {
     vector <pthread_t>::iterator toErase = find(handlerArgs->activeThreads->begin(), handlerArgs->activeThreads->end(), pthread_self());
     if(toErase != handlerArgs->activeThreads->end())
         handlerArgs->activeThreads->erase(toErase);
+    delete handlerArgs;
     //here the thread is dead (after the corresponding function in reversiGameManager is finished)
 }
 
@@ -149,7 +138,6 @@ void* AcceptClientHandler(void *args) {
 
     while (true) {
         cout << "Waiting for client connection...." << endl;
-
         //Define the client socket's structures
         struct sockaddr_in clientAddress;
         socklen_t clientAddressLen = sizeof(clientAddress);
@@ -159,18 +147,18 @@ void* AcceptClientHandler(void *args) {
             cout << "Error: unable to accept client " << endl;
             exit(-1);
         }
-
         pthread_t thread;
 
         clientHandlerArgs* clientArgs = new clientHandlerArgs;
         clientArgs->clientSocket = playerClientSocket;
         clientArgs->commandMap = handlerArgs->commandMap;
         clientArgs->activeThreads = handlerArgs->activeThreads;
+        //handlerArgs content was copied to ClientArgs content so handlerArgs isnt necessary anymore
+        delete handlerArgs;
         /*create a thread that runs the ClientHandler function.
-         *ClientHandler function is responsible for handling possible commands
-         */
+        *ClientHandler function is responsible for handling possible commands
+        */
         int result = pthread_create(&thread, NULL, ClientHandler, clientArgs);
-
         if (result) {
             cout << "Error: unable to create thread, " << result << endl;
             exit(-1);
@@ -179,13 +167,12 @@ void* AcceptClientHandler(void *args) {
     }
 }
 
-void Server::CloseRoutine() {
+void Server::stop() {
     for (int i=0; i < activeThreads.size(); i++) {
         if (pthread_cancel(activeThreads[i])) {
             cout << "Error: unable to cancel a thread" << endl;
             exit(-1);
         }
     }
+    delete commandMap;
 }
-
-void Server::stop() {}

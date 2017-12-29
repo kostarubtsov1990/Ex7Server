@@ -1,6 +1,9 @@
-//
-// Created by kostarubtsov1990 on 17/12/17.
-//
+/*
+ * Name: Kosta Rubtsov
+ * Id: 319206892
+ * Name: Alon Barkan
+ * Id: 200958296
+ */
 
 #ifndef EX5SERVER_REVERSIGAMEMANAGER_H
 #define EX5SERVER_REVERSIGAMEMANAGER_H
@@ -14,7 +17,6 @@
 #include <cstring>
 #define BUF_SIZE 1024
 
-enum player {firstPlayer, secondPlayer};
 enum gameStatus {inProgress, finished};
 
 //GameHandler is runned by thread
@@ -46,12 +48,7 @@ public:
     virtual void StartNewGame (string name);
     virtual void ListGames ();
     virtual void JoinGame (string name);
-    //To delete at last.
-    /*virtual void PlayMove (int x, int y);
-    virtual void CloseGame (string name);*/
     virtual void SetCurrentClientSocket (int currentClientSocket);
-
 };
-
 
 #endif //EX5SERVER_REVERSIGAMEMANAGER_H

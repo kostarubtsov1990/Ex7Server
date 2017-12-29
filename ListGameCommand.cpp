@@ -1,7 +1,9 @@
-//
-// Created by kostarubtsov1990 on 22/12/17.
-//
-
+/*
+ * Name: Kosta Rubtsov
+ * Id: 319206892
+ * Name: Alon Barkan
+ * Id: 200958296
+ */
 #include <cstdlib>
 #include "ListGameCommand.h"
 
