@@ -86,6 +86,10 @@ void Server::start() {
     while (exitCommand != "exit") {
         cin >> exitCommand;
     }
+
+    //handlerArgs content was copied to ClientArgs content so handlerArgs isnt necessary anymore
+    delete args;
+
     //send message to each client that server is about to shut down, and close all sockets of connected clients
     commandMap->CommandHandler(0, "exit_server");
 }
@@ -153,8 +157,7 @@ void* AcceptClientHandler(void *args) {
         clientArgs->clientSocket = playerClientSocket;
         clientArgs->commandMap = handlerArgs->commandMap;
         clientArgs->activeThreads = handlerArgs->activeThreads;
-        //handlerArgs content was copied to ClientArgs content so handlerArgs isnt necessary anymore
-        delete handlerArgs;
+
         /*create a thread that runs the ClientHandler function.
         *ClientHandler function is responsible for handling possible commands
         */
@@ -164,7 +167,11 @@ void* AcceptClientHandler(void *args) {
             exit(-1);
         }
         handlerArgs->activeThreads->push_back(thread);
+
+
     }
+
+
 }
 
 void Server::stop() {
