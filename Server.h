@@ -6,6 +6,7 @@
 #define EX4SERVER_SERVER_H
 
 #include "CommandsManager.h"
+#include "ThreadPool.h"
 
 /*
  * these functions will be run by threads:
@@ -20,6 +21,7 @@ typedef struct {
     int serverSocket;
     CommandsManager* commandMap;
     vector <pthread_t> *activeThreads;
+    ThreadPool* pool;
 
 } acceptHandlerArgs;
 
@@ -37,6 +39,7 @@ public:
     void stop();
 
 private:
+    ThreadPool* pool;
     int port;
     int serverSocket; // the socket's file descriptor
     CommandsManager* commandMap;

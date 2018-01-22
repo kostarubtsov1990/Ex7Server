@@ -30,6 +30,9 @@ Server::Server(CommandsManager* commMap) {
 
     port = atoi(portString.c_str());
     commandMap = commMap;
+
+    //this will be the amount threads that will execute the tasks
+    pool = new ThreadPool(MAX_CONNECTED_CLIENTS);
 }
 
 Server::Server(int port): port(port), serverSocket(0) {
@@ -69,6 +72,7 @@ void Server::start() {
     args->serverSocket = serverSocket;
     args->commandMap = commandMap;
     args->activeThreads = &activeThreads;
+    args->pool = pool;
 
     int result = pthread_create(&thread, NULL, AcceptClientHandler, args);
 
@@ -92,6 +96,8 @@ void Server::start() {
 
     //send message to each client that server is about to shut down, and close all sockets of connected clients
     commandMap->CommandHandler(0, "exit_server");
+    pool->Terminate();
+    delete pool;
 }
 
 /*
@@ -151,7 +157,7 @@ void* AcceptClientHandler(void *args) {
             cout << "Error: unable to accept client " << endl;
             exit(-1);
         }
-        pthread_t thread;
+        //pthread_t thread;
 
         clientHandlerArgs* clientArgs = new clientHandlerArgs;
         clientArgs->clientSocket = playerClientSocket;
@@ -161,12 +167,16 @@ void* AcceptClientHandler(void *args) {
         /*create a thread that runs the ClientHandler function.
         *ClientHandler function is responsible for handling possible commands
         */
-        int result = pthread_create(&thread, NULL, ClientHandler, clientArgs);
+
+        Task* task = new Task(ClientHandler, clientArgs);
+        handlerArgs->pool->AddTask(task);
+
+        /*int result = pthread_create(&thread, NULL, ClientHandler, clientArgs);
         if (result) {
             cout << "Error: unable to create thread, " << result << endl;
             exit(-1);
-        }
-        handlerArgs->activeThreads->push_back(thread);
+        }*/
+        //handlerArgs->activeThreads->push_back(thread);
 
 
     }
