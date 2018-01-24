@@ -170,15 +170,6 @@ void* AcceptClientHandler(void *args) {
 
         Task* task = new Task(ClientHandler, clientArgs);
         handlerArgs->pool->AddTask(task);
-
-        /*int result = pthread_create(&thread, NULL, ClientHandler, clientArgs);
-        if (result) {
-            cout << "Error: unable to create thread, " << result << endl;
-            exit(-1);
-        }*/
-        //handlerArgs->activeThreads->push_back(thread);
-
-
     }
 
 

@@ -51,4 +51,9 @@ void ThreadPool::Terminate() {
 ThreadPool::~ThreadPool() {
     delete[] threads;
     //also need to delete all the remaining task that are not yet completed
+    while (!taskQueue.empty()) {
+        Task* task = taskQueue.front();
+        taskQueue.pop();
+        delete task;
+    }
 }
